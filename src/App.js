@@ -29,7 +29,7 @@ class App extends React.Component {
     // create an array of id's from the current playlist to check the seleceted track against.
     let currentTracks = this.state.playlistTracks.map(track => track.id);
 
-    if( currentTracks.includes(track.id) === false ){
+    if( !currentTracks || currentTracks.includes(track.id) === false ){
 
       // save a copy of the current playlist, then add the seleceted track to the array.
       let currentPlaylist = this.state.playlistTracks;
@@ -59,7 +59,8 @@ class App extends React.Component {
   }
 
   savePlaylist(){
-    console.log('this is working');
+    console.log( this.state.playlistName );
+    console.log( this.state.playlistTracks );
   }
 
   search(term){
