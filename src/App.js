@@ -63,7 +63,10 @@ class App extends React.Component {
   }
 
   search(term){
+    // make user entry url friendly
     let urlTerm = term.replace(' ', '%20');
+
+    // save the returned search results to App state
     Spotify.search(urlTerm).then(track =>{
       this.setState({ searchResults: track });
     });

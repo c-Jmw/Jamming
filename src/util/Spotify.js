@@ -24,9 +24,10 @@ const Spotify = {
 
 
   search(term){
+    // get accessToken
     this.getAccessToken();
-    //console.log(accessToken[0]);
 
+    // make sure accessToken is set before sending request
     if (accessToken){
       let url = `https://api.spotify.com/v1/search?q=${term}&type=track&${accessToken[0]}`;
       return fetch( url ).then(response => {
