@@ -26,26 +26,22 @@ const Spotify = {
   search(term){
     this.getAccessToken();
     //console.log(accessToken[0]);
-    if (accessToken){
-      let url = `https://api.spotify.com/v1/search?q=${term}&type=track&${accessToken[0]}`
-        console.log(url);
-      return fetch( url // , { headers:  { Authorization: `Bearer ${accessToken}` } }
-      ).then(response => {
-        return response.json();
-      }).then( jsonResponse => {
-        if( jsonResponse.searchResults){
-          console.log(jsonResponse);
-          return jsonResponse.searchResults.map(track => (
-            {
-              track: {
-                name: track.items.name
-              },
-            }
-          ));
-        }
-      });
-    }
 
+    if (accessToken){
+      let url = `https://api.spotify.com/v1/search?q=${term}&type=track&${accessToken[0]}`;
+      return fetch( url ).then(response => {
+        return response.json();
+      }).then(jsonResponse => {
+        return jsonResponse.tracks.items.map(track => (
+          { track: {
+            id: track.id,
+            name: track.name,
+            album: track.album.name,
+            artist: track.album.artists[0].name
+          }}
+        ));
+      }); // end then
+     } // end if
   } // end search
 
 } // end Spotify
