@@ -7,9 +7,10 @@ var accessToken;
 const Spotify = {
 
   getAccessToken(){
-    if(accessToken){
+    if(window.location.href.match(/access_token=([^&]*)/)){
+      accessToken = window.location.href.match(/access_token=([^&]*)/);
       return accessToken;
-    } else if ( window.location.href.match(/access_token=([^&]*)/) && window.location.href.match(/expires_in=([^&]*)/) ){
+    } else if ( accessToken ){
 
       accessToken = window.location.href.match(/access_token=([^&]*)/);
       let expiresIn = window.location.href.match(/expires_in=([^&]*)/);
@@ -21,25 +22,31 @@ const Spotify = {
     }
   },
 
+
   search(term){
-    return fetch(
-      `https://api.spotify.com/v1/search?type=track&q=${term}`,
-      { headers: { Authorization: `Bearer ${accessToken}`} }
-    ).then(response => {
-      return response.json();
-    }).then( jsonResponse => {
-      if( jsonResponse.searchResults){
-        return jsonResponse.searchResults.map(searchResult => (
-          {
-            searchResult: {
-              name: searchResult.name,
-              artist: searchResult.artist,
-              album: searchResult.album,
-            },
-          }
-        ));
-      }
-    });
-  }
-}
+    this.getAccessToken();
+    //console.log(accessToken[0]);
+    if (accessToken){
+      let url = `https://api.spotify.com/v1/search?q=${term}&type=track&${accessToken[0]}`
+        console.log(url);
+      return fetch( url // , { headers:  { Authorization: `Bearer ${accessToken}` } }
+      ).then(response => {
+        return response.json();
+      }).then( jsonResponse => {
+        if( jsonResponse.searchResults){
+          console.log(jsonResponse);
+          return jsonResponse.searchResults.map(track => (
+            {
+              track: {
+                name: track.items.name
+              },
+            }
+          ));
+        }
+      });
+    }
+
+  } // end search
+
+} // end Spotify
 export default Spotify;
