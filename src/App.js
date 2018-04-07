@@ -61,18 +61,18 @@ class App extends React.Component {
   savePlaylist(){
     let playlistName = this.state.playlistName;
     let trackURIs = this.state.playlistTracks.map( track => track.uri);
-    console.log( playlistName );
-    console.log( trackURIs );
+    console.log( 'Play list name is: '+playlistName );
+    console.log( 'Track URI\'s array: '+trackURIs );
     Spotify.savePlaylist( playlistName, trackURIs);
-  }
+  } // end savePlaylist
 
   search(term){
     // make user entry url friendly
-    let urlTerm = term.replace(' ', '%20');
+    // let urlTerm = term.replace(' ', '%20');
 
     // save the returned search results to App state
-    Spotify.search(urlTerm).then(track =>{
-      this.setState({ searchResults: track });
+    Spotify.search(term).then(searchResults =>{
+      this.setState({ searchResults: searchResults });
     });
   }
 
