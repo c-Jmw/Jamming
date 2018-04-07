@@ -55,8 +55,8 @@ const Spotify = {
   }, // end search
 
   savePlaylist( playlistName, trackURIs ){
-    let accessToken = window.location.href.match(/access_token=([^&]*)/);
-    let headers = { Authorization: `Bearer ${accessToken}` };
+    const accessToken = Spotify.getAccessToken();
+    const headers = { Authorization: `Bearer ${accessToken}` };
     let user_id;
     fetch(`https://api.spotify.com/v1/me/`, {headers:headers}).then( response => {
       let user_id = response.json();
