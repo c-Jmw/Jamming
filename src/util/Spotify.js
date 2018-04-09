@@ -30,10 +30,10 @@ const Spotify = {
 
   search(term){
     // get accessToken
-    const accessToken = Spotify.getAccessToken();
+    let accessToken = Spotify.getAccessToken();
     console.log(accessToken);
 
-    let url = `https://api.spotify.com/v1/type=track&q=${term}`; // `https://api.spotify.com/v1/search?q=${term}&type=track&${accessToken}`; // <<< This commented url returns search results
+    let url = `https://api.spotify.com/v1/search?type=track&q=${term}`; // `https://api.spotify.com/v1/search?q=${term}&type=track&${accessToken}`; // <<< This commented url returns search results
     return fetch(
       url, {
         headers: {
@@ -62,9 +62,8 @@ const Spotify = {
 
   savePlaylist( playlistName, trackURIs ){
     let accessToken = Spotify.getAccessToken();
-    const headers = { Authorization: `Bearer ${accessToken}` };
-    let user_id;
-    return fetch(`https://api.spotify.com/v1/me/`, {headers:headers}).then( response => {
+    //let user_id;
+    return fetch(`https://api.spotify.com/v1/me/`, {headers: { Authorization: `Bearer ${accessToken}` }}).then( response => {
       return response.json();
     }).then( jsonResponse => {
       console.log( jsonResponse );
