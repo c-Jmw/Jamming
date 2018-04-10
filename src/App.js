@@ -11,7 +11,6 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-        searchTerm: null,
         searchResults: [],
         playlistName: '',
         playlistTracks: [],
@@ -61,14 +60,13 @@ class App extends React.Component {
   savePlaylist(){
     let playlistName = this.state.playlistName;
     let trackURIs = this.state.playlistTracks.map( track => track.uri);
-    console.log( 'Play list name is: '+playlistName );
-    console.log( 'Track URI\'s array: '+trackURIs );
-    Spotify.savePlaylist( playlistName, trackURIs);
+    Spotify.savePlaylist( playlistName, trackURIs );
+    this.setState({ playlistName: '' });
+    this.setState({ playlistTracks: [] });
   } // end savePlaylist
 
   search(term){
-    // make user entry url friendly
-    // let urlTerm = term.replace(' ', '%20');
+    //this.setState({ searchTerm: term });
 
     // save the returned search results to App state
     Spotify.search(term).then(searchResults =>{

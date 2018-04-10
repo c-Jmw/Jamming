@@ -1,5 +1,4 @@
 const client_id = '819423a5c5334960a8796ec5223089ba';
-//const client_secret = '8fb70fedc5fc40f8a83d8c1e2eefeec4';
 const redirect_uri = 'http://localhost:3000/'
 let accessToken = '';
 
@@ -10,13 +9,13 @@ const Spotify = {
     if( accessToken ) {
       return accessToken;
     }
-    // create vars to check session against
+    // create vars to check token and session against
     const matchAccessToken = window.location.href.match(/access_token=([^&]*)/);
     const matchExpiry = window.location.href.match(/expires_in=([^&]*)/);
 
     if ( matchAccessToken && matchExpiry ){
 
-      accessToken = matchAccessToken[0];
+      accessToken = matchAccessToken[0].replace('access_token=','');
       const expiresIn = Number(matchExpiry[1]);
 
       window.setTimeout(() => accessToken = '', expiresIn * 1000);
@@ -29,25 +28,24 @@ const Spotify = {
   },
 
   search(term){
-    // get accessToken
-    let accessToken = Spotify.getAccessToken();
-    console.log(accessToken);
+    // make sure the accessToken is set
+    const accessToken = this.getAccessToken();
 
-    let url = `https://api.spotify.com/v1/search?type=track&q=${term}`; // `https://api.spotify.com/v1/search?q=${term}&type=track&${accessToken}`; // <<< This commented url returns search results
+    let url = `https://api.spotify.com/v1/search?type=track&q=${term}`;
     return fetch(
       url, {
         headers: {
-          'Authorization': `Bearer  ${accessToken}`
+          Authorization: `Bearer ${accessToken}`
         }
-      } // <<< headers does not get sent and returns a 401 unauthorised error.
+      }
     ).then(response => {
       return response.json();
     }).then(jsonResponse => {
-
+      // check for results
       if( !jsonResponse.tracks ){
         return [];
       }
-
+      // map results to object for output to searchResults
       return jsonResponse.tracks.items.map(track => (
          {
           id: track.id,
@@ -61,17 +59,46 @@ const Spotify = {
   }, // end search
 
   savePlaylist( playlistName, trackURIs ){
-    let accessToken = Spotify.getAccessToken();
-    //let user_id;
-    return fetch(`https://api.spotify.com/v1/me/`, {headers: { Authorization: `Bearer ${accessToken}` }}).then( response => {
-      return response.json();
-    }).then( jsonResponse => {
-      console.log( jsonResponse );
-    });
-     //console.log('user id is : '+user_id);
-    // save_playlist = `https://api.spotify.com/v1/users/${client_id}/playlists`; // POST
-  }
+    const accessToken = Spotify.getAccessToken();
+    let user_id = '';
+    // const auth = {Authorization: `Bearer ${accessToken}`};
+    // cannot use var for Headers
+    // Error: Request header field auth is not allowed by Access-Control-Allow-Headers in preflight response.
 
+    // get the user id
+    return fetch(
+      `https://api.spotify.com/v1/me/`,
+      { headers: { Authorization: `Bearer ${accessToken}` }}
+    ).then( response => response.json()).then( jsonResponse => {
+        user_id = jsonResponse.id;
+        // create playlist on spotify users account
+        return fetch( `https://api.spotify.com/v1/users/${user_id}/playlists`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({name: playlistName})
+          }
+        ).then( response => response.json()).then( jsonResponse => {
+            // add tracks to playlist
+            if( jsonResponse.id ){
+              alert('Your playlist was succesfully saved.');
+              let playlist_id = jsonResponse.id;
+              return fetch(`https://api.spotify.com/v1/users/${user_id}/playlists/${playlist_id}/tracks`,
+                {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({uris: trackURIs})
+                });
+              } else { alert('Something went wrong, please try again.'); }
+          }).catch(error => console.log( 'Error', error));
+        });
+  } // end savePlaylist
 } // end Spotify
 
 export default Spotify;
